@@ -1,0 +1,6 @@
+name: BedrockSupporter
+version: '${project.version}'
+main: ltd.rymc.bedrock.plugin.BedrockSupporter
+api-version: 1.13
+author: RENaa_FD
+folia-supported: true
