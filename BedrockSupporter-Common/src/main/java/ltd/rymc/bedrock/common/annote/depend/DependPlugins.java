@@ -1,4 +1,4 @@
-package ltd.rymc.bedrock.common.annote;
+package ltd.rymc.bedrock.common.annote.depend;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -8,6 +8,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface ModuleName {
-    String value();
+public @interface DependPlugins {
+    String[] value();
 }

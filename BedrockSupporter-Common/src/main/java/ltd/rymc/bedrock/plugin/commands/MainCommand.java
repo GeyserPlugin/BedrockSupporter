@@ -19,7 +19,7 @@ public class MainCommand extends BaseCommand {
     @Subcommand("modules")
     @CommandPermission("brs.modules.list")
     public void modules(CommandSender sender){
-        List<Module> modules = BedrockSupporter.getInstance().getModules();
+        List<Module> modules = BedrockSupporter.getModuleManager().getModules();
         sender.sendMessage("Modules (" + modules.size() + "): ");
         for (Module module : modules) {
             sender.sendMessage(module.getInfoString());

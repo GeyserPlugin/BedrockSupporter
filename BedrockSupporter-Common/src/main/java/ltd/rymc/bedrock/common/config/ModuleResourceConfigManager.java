@@ -99,7 +99,7 @@ public final class ModuleResourceConfigManager<C> implements ConfigManager<C> {
 
 
     private InputStream obtainDefaultResource() {
-        return getClass().getResourceAsStream("/" + module.getDataPath() + resource);
+        return getClass().getResourceAsStream("/" + module.getResourceDataPath() + resource);
     }
 
     private C loadDefaultsFromResource() {

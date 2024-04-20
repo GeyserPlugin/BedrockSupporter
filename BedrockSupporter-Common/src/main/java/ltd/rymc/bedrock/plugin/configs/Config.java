@@ -26,7 +26,7 @@ public interface Config {
 
     static Map<String, State> defaultState(){
         Map<String, State> stateMap = new HashMap<>();
-        for (Module module : BedrockSupporter.getInstance().getModules()) {
+        for (Module module : BedrockSupporter.getModuleManager().getModules()) {
             stateMap.put(module.getName(), State.of(module.getModuleInfo().getState()));
         }
         return stateMap;

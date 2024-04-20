@@ -6,7 +6,7 @@
     <parent>
         <groupId>ltd.rymc</groupId>
         <artifactId>BedrockSupporter</artifactId>
-        <version>0.0.1-Beta</version>
+        <version>0.0.2-Beta</version>
     </parent>
 
     <artifactId>BedrockSupporter-Plugin</artifactId>
@@ -84,6 +84,12 @@
         <dependency>
             <groupId>ltd.rymc</groupId>
             <artifactId>BedrockSupporter-QuickShop</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ltd.rymc</groupId>
+            <artifactId>BedrockSupporter-Login</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

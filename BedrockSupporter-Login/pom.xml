@@ -9,7 +9,7 @@
         <version>0.0.2-Beta</version>
     </parent>
 
-    <artifactId>BedrockSupporter-Residence</artifactId>
+    <artifactId>BedrockSupporter-Login</artifactId>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -22,23 +22,8 @@
             <groupId>ltd.rymc</groupId>
             <artifactId>BedrockSupporter-Common</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.bekvon.bukkit</groupId>
-            <artifactId>Residence</artifactId>
-            <version>5.0.3.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/Residence5.0.3.0.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.Zirps</groupId>
-            <artifactId>CMILib</artifactId>
-            <version>1.4.1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/CMILib1.4.1.0.jar</systemPath>
-        </dependency>
-
     </dependencies>
 
 </project>

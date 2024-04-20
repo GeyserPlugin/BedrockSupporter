@@ -5,20 +5,15 @@ import ltd.rymc.bedrock.common.config.ConfigManager;
 import ltd.rymc.bedrock.common.config.PluginNormalConfigManager;
 import ltd.rymc.bedrock.common.metrics.Metrics;
 import ltd.rymc.bedrock.common.module.Module;
+import ltd.rymc.bedrock.common.module.ModuleManager;
 import ltd.rymc.bedrock.common.utils.PluginUtils;
 import ltd.rymc.bedrock.plugin.commands.MainCommand;
 import ltd.rymc.bedrock.plugin.configs.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reflections.Reflections;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class BedrockSupporter extends JavaPlugin {
 
@@ -26,6 +21,7 @@ public class BedrockSupporter extends JavaPlugin {
     private static PaperCommandManager commandManager;
     private static ConfigManager<Config> config;
     private static MorePaperLib morePaperLib;
+    private static ModuleManager moduleManager;
 
     public static BedrockSupporter getInstance() {
         return instance;
@@ -39,7 +35,9 @@ public class BedrockSupporter extends JavaPlugin {
         return morePaperLib;
     }
 
-    private final Map<String,Module> modules = new HashMap<>();
+    public static ModuleManager getModuleManager() {
+        return moduleManager;
+    }
 
     @Override
     public void onEnable() {
@@ -51,15 +49,15 @@ public class BedrockSupporter extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        commandManager.registerCommand(new MainCommand());
 
-        Reflections reflections = new Reflections("ltd.rymc.bedrock.modules");
-        Set<Class<? extends Module>> classes = reflections.getSubTypesOf(Module.class);
-        for (Class<? extends Module> clazz : classes) {
+
+        commandManager.registerCommand(new MainCommand());
+        moduleManager = new ModuleManager(this);
+
+        for (Class<? extends Module> clazz : moduleManager.getBuiltInModule()) {
             try {
-                Module module = clazz.getDeclaredConstructor().newInstance();
-                modules.put(module.getName(),module);
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                moduleManager.loadModule(clazz);
+            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -68,9 +66,9 @@ public class BedrockSupporter extends JavaPlugin {
 
         config.reloadConfig();
 
-        for (Module module : modules.values()) {
-            module.enable();
-        }
+        moduleManager.enableAll();
+
+
 
         if (config.getConfigData().metrics()){
             new Metrics(this, 16703);
@@ -80,29 +78,15 @@ public class BedrockSupporter extends JavaPlugin {
     public void reload(){
         config.reloadConfig();
 
-        for (Module module : modules.values()) {
-            module.reload();
-        }
+        moduleManager.reloadAll();
     }
 
     @Override
     public void onDisable() {
-        for (Module module : modules.values()) {
-            module.disable();
-        }
+        moduleManager.disableAll();
     }
 
-    public List<Module> getModules() {
-        return new ArrayList<>(modules.values());
-    }
-
-
-    public List<String> getModulesName() {
-        return new ArrayList<>(modules.keySet());
-    }
-
-    public boolean isModuleCanEnabled(String moduleName){
-        Config.State state = config.getConfigData().state().get(moduleName);
-        return state != null && state.enable();
+    public Config getPluginConfig() {
+        return config.getConfigData();
     }
 }

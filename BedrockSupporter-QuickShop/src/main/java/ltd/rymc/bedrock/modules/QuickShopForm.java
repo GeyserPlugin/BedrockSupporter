@@ -1,9 +1,9 @@
 package ltd.rymc.bedrock.modules;
 
-import ltd.rymc.bedrock.common.annote.DependPlugins;
-import ltd.rymc.bedrock.common.annote.ModuleAuthors;
-import ltd.rymc.bedrock.common.annote.ModuleName;
-import ltd.rymc.bedrock.common.annote.ModuleVersion;
+import ltd.rymc.bedrock.common.annote.depend.DependPlugins;
+import ltd.rymc.bedrock.common.annote.info.ModuleAuthors;
+import ltd.rymc.bedrock.common.annote.info.ModuleName;
+import ltd.rymc.bedrock.common.annote.info.ModuleVersion;
 import ltd.rymc.bedrock.common.module.Module;
 import ltd.rymc.bedrock.common.utils.PluginUtils;
 import ltd.rymc.bedrock.quickshop.event.ShopClickEvent;

@@ -1,10 +1,11 @@
 package ltd.rymc.bedrock.common.module;
 
-import ltd.rymc.bedrock.common.annote.DefaultEnabledState;
-import ltd.rymc.bedrock.common.annote.DependPlugins;
-import ltd.rymc.bedrock.common.annote.ModuleAuthors;
-import ltd.rymc.bedrock.common.annote.ModuleName;
-import ltd.rymc.bedrock.common.annote.ModuleVersion;
+import ltd.rymc.bedrock.common.annote.info.DefaultEnabledState;
+import ltd.rymc.bedrock.common.annote.depend.DependPlugins;
+import ltd.rymc.bedrock.common.annote.info.ModuleAuthors;
+import ltd.rymc.bedrock.common.annote.info.ModuleName;
+import ltd.rymc.bedrock.common.annote.info.ModuleVersion;
+import org.bukkit.ChatColor;
 
 import java.util.regex.Pattern;
 
@@ -59,5 +60,18 @@ public class ModuleInfo {
         boolean state = defaultEnabledState == null || defaultEnabledState.value();
 
         return new ModuleInfo(name, version, author, depend, state);
+    }
+
+    public String getInfoString(ChatColor state) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(state);
+        builder.append(getName()).append(ChatColor.WHITE).append(" version ").append(getVersion()).append(" by ");
+        String[] authors = getAuthors();
+        for (int i = 0, j = authors.length; i < j; i++) {
+            String author = authors[i];
+            builder.append(author);
+            if (i + 1 < j) builder.append(", ");
+        }
+        return builder.toString();
     }
 }
