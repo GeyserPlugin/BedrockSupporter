@@ -71,7 +71,7 @@ public class BedrockSupporter extends JavaPlugin {
 
 
         if (config.getConfigData().metrics()){
-            new Metrics(this, 16703);
+            new Metrics(this, 21575);
         }
     }
 
