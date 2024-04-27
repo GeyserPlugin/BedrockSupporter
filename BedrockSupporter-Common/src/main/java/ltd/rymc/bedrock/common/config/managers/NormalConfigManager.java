@@ -1,16 +1,11 @@
-package ltd.rymc.bedrock.common.config;
+package ltd.rymc.bedrock.common.config.managers;
 
-import org.bukkit.plugin.Plugin;
-import space.arim.dazzleconf.ConfigurationFactory;
-import space.arim.dazzleconf.ConfigurationOptions;
+import ltd.rymc.bedrock.common.config.ConfigManager;
+import ltd.rymc.bedrock.common.config.loggers.ConfigLogger;
 import space.arim.dazzleconf.error.ConfigFormatSyntaxException;
 import space.arim.dazzleconf.error.InvalidConfigException;
-import space.arim.dazzleconf.ext.snakeyaml.CommentMode;
-import space.arim.dazzleconf.ext.snakeyaml.SnakeYamlConfigurationFactory;
-import space.arim.dazzleconf.ext.snakeyaml.SnakeYamlOptions;
 import space.arim.dazzleconf.factory.CommentedWrapper;
 import space.arim.dazzleconf.helper.ConfigurationHelper;
-import space.arim.dazzleconf.sorter.AnnotationBasedSorter;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -26,9 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Logger;
 
-public final class PluginNormalConfigManager<C> implements ConfigManager<C> {
+public final class NormalConfigManager<C> implements ConfigManager<C> {
 
     private static Field declaredField = null;
     private static Method fromRawMap = null;
@@ -52,42 +46,14 @@ public final class PluginNormalConfigManager<C> implements ConfigManager<C> {
     private final ConfigurationHelper<C> configHelper;
     private final Path configFile;
     private final String configName;
-    private final Plugin plugin;
+    private final ConfigLogger configLogger;
     private volatile C configData;
 
-    private PluginNormalConfigManager(ConfigurationHelper<C> configHelper, String configName, Plugin plugin, Path configFile) {
+    public NormalConfigManager(ConfigurationHelper<C> configHelper, String configName, ConfigLogger configLogger, Path configFile) {
         this.configFile = configFile;
         this.configName = configName;
-        this.plugin = plugin;
+        this.configLogger = configLogger;
         this.configHelper = configHelper;
-    }
-
-    public static <C> PluginNormalConfigManager<C> create(Plugin plugin, String path, Class<C> configClass) {
-        return create(plugin, path, path, configClass);
-    }
-
-    public static <C> PluginNormalConfigManager<C> create(Plugin plugin, String path, Class<C> configClass, ConfigurationOptions options) {
-        return create(plugin, path, path, configClass, options);
-    }
-
-    public static <C> PluginNormalConfigManager<C> create(Plugin plugin, String configName, String path, Class<C> configClass) {
-        return create(plugin, configName, path, configClass,
-                new ConfigurationOptions.Builder().sorter(new AnnotationBasedSorter()).build()
-        );
-    }
-
-    public static <C> PluginNormalConfigManager<C> create(Plugin plugin, String configName, String path, Class<C> configClass, ConfigurationOptions options) {
-        Path configFolder = plugin.getDataFolder().toPath();
-        Path configFile = configFolder.resolve(path);
-        // SnakeYaml example
-        SnakeYamlOptions yamlOptions = new SnakeYamlOptions.Builder()
-                .commentMode(CommentMode.alternativeWriter("%s"))
-                .build();
-        ConfigurationFactory<C> configFactory = SnakeYamlConfigurationFactory.create(
-                configClass,
-                options,
-                yamlOptions);
-        return new PluginNormalConfigManager<>(new ConfigurationHelper<>(configFolder, path, configFactory), configName, plugin, configFile);
     }
 
     public void reloadConfig() {
@@ -98,14 +64,14 @@ public final class PluginNormalConfigManager<C> implements ConfigManager<C> {
 
         } catch (ConfigFormatSyntaxException ex) {
             configData = configHelper.getFactory().loadDefaults();
-            plugin.getLogger().severe("The yaml syntax in your configuration is invalid. "
-                                      + "Check your YAML syntax with a tool such as https://yaml-online-parser.appspot.com/");
+            configLogger.severe("The yaml syntax in your configuration is invalid. "
+                                                           + "Check your YAML syntax with a tool such as https://yaml-online-parser.appspot.com/");
             ex.printStackTrace();
 
         } catch (InvalidConfigException ex) {
             configData = configHelper.getFactory().loadDefaults();
-            plugin.getLogger().severe("One of the values in your configuration is not valid. "
-                                      + "Check to make sure you have specified the right data types.");
+            configLogger.severe("One of the values in your configuration is not valid. "
+                                                     + "Check to make sure you have specified the right data types.");
             ex.printStackTrace();
         }
     }
@@ -196,13 +162,12 @@ public final class PluginNormalConfigManager<C> implements ConfigManager<C> {
         }
 
         private void printMap(Map<String, Object> map, String parentKey) {
-            Logger logger = plugin.getLogger();
 
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 String key = parentKey == null ? entry.getKey() : parentKey + "." + entry.getKey();
                 Object value = entry.getValue();
 
-                logger.info("Key: " + key + " , Value:" + value + " , Type: " + value.getClass().getName());
+                configLogger.info("Key: " + key + " , Value:" + value + " , Type: " + value.getClass().getName());
 
                 // Check subsection
                 if (!(value instanceof Map<?, ?>)) continue;

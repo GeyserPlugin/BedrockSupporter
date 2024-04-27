@@ -1,19 +1,13 @@
-package ltd.rymc.bedrock.common.config;
+package ltd.rymc.bedrock.common.config.managers;
 
-import ltd.rymc.bedrock.common.module.Module;
-import ltd.rymc.bedrock.plugin.BedrockSupporter;
-import org.bukkit.plugin.Plugin;
+import ltd.rymc.bedrock.common.config.ConfigManager;
+import ltd.rymc.bedrock.common.config.loggers.ConfigLogger;
 import space.arim.dazzleconf.AuxiliaryKeys;
 import space.arim.dazzleconf.ConfigurationFactory;
-import space.arim.dazzleconf.ConfigurationOptions;
 import space.arim.dazzleconf.error.ConfigFormatSyntaxException;
 import space.arim.dazzleconf.error.IllDefinedConfigException;
 import space.arim.dazzleconf.error.InvalidConfigException;
-import space.arim.dazzleconf.ext.snakeyaml.CommentMode;
-import space.arim.dazzleconf.ext.snakeyaml.SnakeYamlConfigurationFactory;
-import space.arim.dazzleconf.ext.snakeyaml.SnakeYamlOptions;
 import space.arim.dazzleconf.factory.CommentedWrapper;
-import space.arim.dazzleconf.sorter.AnnotationBasedSorter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,9 +27,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Logger;
 
-public final class ModuleResourceConfigManager<C> implements ConfigManager<C> {
+public final class ResourceConfigManager<C> implements ConfigManager<C> {
 
     private static Field declaredField = null;
     private static Method fromRawMap = null;
@@ -57,49 +50,22 @@ public final class ModuleResourceConfigManager<C> implements ConfigManager<C> {
     private final ResourceRawDataHelper rawDataHelper = new ResourceRawDataHelper();
     private final ConfigurationFactory<C> factory;
     private final Path configFile;
-    private final String resource;
+    private final String resourcePath;
     private final String configName;
-    private final Plugin plugin = BedrockSupporter.getInstance();
-    private final Module module;
+    private final ConfigLogger configLogger;
     private volatile C configData;
 
-    public ModuleResourceConfigManager(Module module, Path configFile, String configName, String resource, ConfigurationFactory<C> factory) {
+    public ResourceConfigManager(ConfigurationFactory<C> factory, String configName, ConfigLogger configLogger, Path configFile, String resourcePath) {
         this.configFile = configFile;
         this.configName = configName;
-        this.resource = resource;
+        this.resourcePath = resourcePath;
+        this.configLogger = configLogger;
         this.factory = factory;
-        this.module = module;
-    }
-
-    public static <C> ModuleResourceConfigManager<C> create(Module module, String path, Class<C> configClass) {
-        return create(module, path, path, configClass);
-    }
-
-    public static <C> ModuleResourceConfigManager<C> create(Module module, String path, Class<C> configClass, ConfigurationOptions options) {
-        return create(module, path, path, configClass, options);
-    }
-
-    public static <C> ModuleResourceConfigManager<C> create(Module module, String configName, String path, Class<C> configClass) {
-        return create(module, configName, path, configClass,
-                new ConfigurationOptions.Builder().sorter(new AnnotationBasedSorter()).build()
-        );
-    }
-
-    public static <C> ModuleResourceConfigManager<C> create(Module module, String configName, String path, Class<C> configClass, ConfigurationOptions options) {
-        Path configFile = module.getDataFolder().toPath().resolve(path);
-        // ShakeYaml example
-        SnakeYamlOptions yamlOptions = new SnakeYamlOptions.Builder().commentMode(CommentMode.alternativeWriter("%s")).build();
-        ConfigurationFactory<C> configFactory = SnakeYamlConfigurationFactory.create(
-                configClass,
-                options,
-                yamlOptions
-        );
-        return new ModuleResourceConfigManager<>(module, configFile, configName, path.replace("\\", "/"), configFactory);
     }
 
 
     private InputStream obtainDefaultResource() {
-        return getClass().getResourceAsStream("/" + module.getResourceDataPath() + resource);
+        return getClass().getResourceAsStream("/" + resourcePath);
     }
 
     private C loadDefaultsFromResource() {
@@ -152,11 +118,11 @@ public final class ModuleResourceConfigManager<C> implements ConfigManager<C> {
 
         } catch (ConfigFormatSyntaxException ex) {
             configData = loadDefaultsFromResource();
-            plugin.getLogger().severe("The yaml syntax in your configuration is invalid. " + "Check your YAML syntax with a tool such as https://yaml-online-parser.appspot.com/");
+            configLogger.severe("The yaml syntax in your configuration is invalid. " + "Check your YAML syntax with a tool such as https://yaml-online-parser.appspot.com/");
             ex.printStackTrace();
         } catch (InvalidConfigException ex) {
             configData = loadDefaultsFromResource();
-            plugin.getLogger().severe("One of the values in your configuration is not valid. " + "Check to make sure you have specified the right data types.");
+            configLogger.severe("One of the values in your configuration is not valid. " + "Check to make sure you have specified the right data types.");
             ex.printStackTrace();
         }
     }
@@ -246,13 +212,12 @@ public final class ModuleResourceConfigManager<C> implements ConfigManager<C> {
         }
 
         private void printData(Map<String, Object> map, String parentKey) {
-            Logger logger = plugin.getLogger();
 
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 String key = parentKey == null ? entry.getKey() : parentKey + "." + entry.getKey();
                 Object value = entry.getValue();
 
-                logger.info("Key: " + key + " , Value:" + value + " , Type: " + value.getClass().getName());
+                configLogger.info("Key: " + key + " , Value:" + value + " , Type: " + value.getClass().getName());
 
                 // Check subsection
                 if (!(value instanceof Map<?, ?>)) continue;

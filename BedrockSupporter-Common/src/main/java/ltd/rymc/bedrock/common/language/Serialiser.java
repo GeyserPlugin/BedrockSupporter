@@ -1,8 +1,8 @@
 package ltd.rymc.bedrock.common.language;
 
+import ltd.rymc.bedrock.common.config.ConfigBuilder;
 import ltd.rymc.bedrock.common.module.Module;
 import ltd.rymc.bedrock.common.config.ConfigManager;
-import ltd.rymc.bedrock.common.config.ModuleResourceConfigManager;
 import space.arim.dazzleconf.error.BadValueException;
 import space.arim.dazzleconf.serialiser.Decomposer;
 import space.arim.dazzleconf.serialiser.FlexibleType;
@@ -35,7 +35,11 @@ public abstract class Serialiser implements ValueSerialiser<Language> {
     @Override
     public Language deserialise(FlexibleType flexibleType) throws BadValueException {
         String language = getValue(flexibleType);
-        ConfigManager<?> configManager = ModuleResourceConfigManager.create(getModule(), language, "lang\\" + language + ".yml", getTargetConfig());
+        ConfigManager<?> configManager = ConfigBuilder
+                .builder(getTargetConfig(), "lang\\" + language + ".yml")
+                .module(getModule())
+                .name(language)
+                .buildResource("lang/" + language + ".yml");
         configManager.reloadConfig();
         return Language.of(configManager, getTargetConfig());
     }

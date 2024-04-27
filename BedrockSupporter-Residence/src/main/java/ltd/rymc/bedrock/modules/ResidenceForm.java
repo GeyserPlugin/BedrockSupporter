@@ -6,7 +6,6 @@ import ltd.rymc.bedrock.common.annote.info.ModuleAuthors;
 import ltd.rymc.bedrock.common.annote.info.ModuleName;
 import ltd.rymc.bedrock.common.annote.info.ModuleVersion;
 import ltd.rymc.bedrock.common.config.ConfigManager;
-import ltd.rymc.bedrock.common.config.ModuleNormalConfigManager;
 import ltd.rymc.bedrock.common.language.Language;
 import ltd.rymc.bedrock.common.module.Module;
 import ltd.rymc.bedrock.common.utils.LanguageUtils;
@@ -23,7 +22,7 @@ import java.io.File;
 public class ResidenceForm extends Module {
 
     private static ResidenceForm instance;
-    private static ModuleNormalConfigManager<Config> mainConfigManager;
+    private static ConfigManager<Config> mainConfigManager;
 
     public static ResidenceForm getInstance() {
         return instance;
@@ -62,7 +61,7 @@ public class ResidenceForm extends Module {
     private void loadConfig() {
         boolean firstLoad = !new File(getDataFolder(), "config.yml").exists();
 
-        mainConfigManager = ModuleNormalConfigManager.create(this, "config", "config.yml", Config.class);
+        mainConfigManager = defaultConfig(Config.class);
         mainConfigManager.reloadConfig();
 
         if (firstLoad) mainConfigManager.getRawDataHelper().setData("language", LanguageUtils.translateLanguage(LanguageUtils.getSystemLanguage()));

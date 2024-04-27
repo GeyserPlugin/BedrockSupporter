@@ -1,6 +1,8 @@
 package ltd.rymc.bedrock.common.module;
 
 import co.aikar.commands.PaperCommandManager;
+import ltd.rymc.bedrock.common.config.ConfigBuilder;
+import ltd.rymc.bedrock.common.config.ConfigManager;
 import ltd.rymc.bedrock.plugin.BedrockSupporter;
 import org.bukkit.ChatColor;
 
@@ -34,6 +36,10 @@ public class Module extends ModuleBase {
 
     public ModuleInfo getModuleInfo(){
         return moduleInfo;
+    }
+
+    public <T> ConfigManager<T> defaultConfig(Class<T> configClass){
+        return ConfigBuilder.builder(configClass,"config.yml").module(this).name("config").buildNormal();
     }
 
 }

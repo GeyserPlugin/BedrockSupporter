@@ -1,8 +1,8 @@
 package ltd.rymc.bedrock.plugin;
 
 import co.aikar.commands.PaperCommandManager;
+import ltd.rymc.bedrock.common.config.ConfigBuilder;
 import ltd.rymc.bedrock.common.config.ConfigManager;
-import ltd.rymc.bedrock.common.config.PluginNormalConfigManager;
 import ltd.rymc.bedrock.common.metrics.Metrics;
 import ltd.rymc.bedrock.common.module.Module;
 import ltd.rymc.bedrock.common.module.ModuleManager;
@@ -62,7 +62,10 @@ public class BedrockSupporter extends JavaPlugin {
             }
         }
 
-        config = PluginNormalConfigManager.create(this, "config", "config.yml", Config.class);
+        config = ConfigBuilder.builder(Config.class,"config.yml")
+                .plugin(this)
+                .name("config")
+                .buildNormal();
 
         config.reloadConfig();
 
